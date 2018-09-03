@@ -63,10 +63,10 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-//        if(FirebaseAuth.getInstance().getCurrentUser() != null){
-//            Intent intent = new Intent(MainActivity.this,UserActivity.class);
-//            startActivity(intent);
-//        }
+        if(FirebaseAuth.getInstance().getCurrentUser() != null){
+            Intent intent = new Intent(MainActivity.this,UserActivity.class);
+            startActivity(intent);
+        }
         mAuth = FirebaseAuth.getInstance();
         mName = findViewById(R.id.nameText);
         mEmail = findViewById(R.id.emailText);
@@ -82,16 +82,35 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
+                            String name = mName.getText().toString();
                             mFirebaseUser = mAuth.getCurrentUser();
-                            UserProfileChangeRequest profileChange = new UserProfileChangeRequest.Builder()
-                                    .setDisplayName(mName.getText().toString())
-                                    .build();
-                            mFirebaseUser.updateProfile(profileChange).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                @Override
-                                public void onComplete(@NonNull Task<Void> task) {
+                            if (!"".equals(name)) {
+                                UserProfileChangeRequest profileChange = new UserProfileChangeRequest.Builder()
+                                        .setDisplayName(name)
+                                        .build();
+                                mFirebaseUser.updateProfile(profileChange).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+                                        Toast.makeText(MainActivity.this, "Hi, My Name Is " + mFirebaseUser.getDisplayName(), Toast.LENGTH_LONG).show();
+                                        addUser();
+                                    }
+                                });
+                            } else {
+                                if (mFirebaseUser.getDisplayName() == null) {
+                                    UserProfileChangeRequest profileChange = new UserProfileChangeRequest.Builder()
+                                            .setDisplayName("Who am I?")
+                                            .build();
+                                    mFirebaseUser.updateProfile(profileChange).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<Void> task) {
+                                            Toast.makeText(MainActivity.this, "Hi, My Name Is " + mFirebaseUser.getDisplayName(), Toast.LENGTH_LONG).show();
+                                            addUser();
+                                        }
+                                    });
+                                } else {
                                     Toast.makeText(MainActivity.this, "Hi, My Name Is " + mFirebaseUser.getDisplayName(), Toast.LENGTH_LONG).show();
                                 }
-                            });
+                            }
 
 
                             Log.d("Login ", "signInWithEmail:success");

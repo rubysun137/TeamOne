@@ -6,15 +6,15 @@ public class Article {
     private String article_tag;
     private String article_title;
     private long create_time;
-    private String uid;
+    private String email;
 
-    public Article(String article_content, String article_id, String article_tag, String article_title, long create_time, String uid) {
+    public Article(String article_content, String article_id, String article_tag, String article_title, long create_time, String email) {
         this.article_content = article_content;
         this.article_id = article_id;
         this.article_tag = article_tag;
         this.article_title = article_title;
         this.create_time = create_time;
-        this.uid = uid;
+        this.email = email;
     }
 
     public String getArticle_content() {
@@ -37,7 +37,7 @@ public class Article {
         return create_time;
     }
 
-    public String getUid() {
-        return uid;
+    public String getEmail() {
+        return email;
     }
 }
