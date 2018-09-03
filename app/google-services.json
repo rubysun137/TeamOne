@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "748682048173",
+    "firebase_url": "https://app-work-team-one.firebaseio.com",
+    "project_id": "app-work-team-one",
+    "storage_bucket": "app-work-team-one.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:748682048173:android:375251d3d6c6cbd3",
+        "android_client_info": {
+          "package_name": "com.ruby.teamone"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "748682048173-2rfn61h17ka7bneti63njit47pq813fv.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.ruby.teamone",
+            "certificate_hash": "c8c4fcb7bdbf26112b6af240e7a7c42e0252d463"
+          }
+        },
+        {
+          "client_id": "748682048173-1nbn5a7aubefi7qlag6m0buou2s4rtdf.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAMS7kgQG6lg7QHJ_1KHAIfov4ziysiIss"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "748682048173-1nbn5a7aubefi7qlag6m0buou2s4rtdf.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
