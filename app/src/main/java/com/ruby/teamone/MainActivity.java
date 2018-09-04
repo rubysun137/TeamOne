@@ -27,7 +27,6 @@ import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
-    private TextView mTextMessage;
     private FirebaseAuth mAuth;
     private EditText mEmail;
     private EditText mPassword;
@@ -39,32 +38,13 @@ public class MainActivity extends AppCompatActivity {
     private String mUserName;
     private FirebaseUser mFirebaseUser;
 
-    private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
-            = new BottomNavigationView.OnNavigationItemSelectedListener() {
-
-        @Override
-        public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-            switch (item.getItemId()) {
-                case R.id.navigation_home:
-                    mTextMessage.setText(R.string.title_home);
-                    return true;
-                case R.id.navigation_dashboard:
-                    mTextMessage.setText(R.string.title_dashboard);
-                    return true;
-                case R.id.navigation_notifications:
-                    mTextMessage.setText(R.string.title_notifications);
-                    return true;
-            }
-            return false;
-        }
-    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        if(FirebaseAuth.getInstance().getCurrentUser() != null){
-            Intent intent = new Intent(MainActivity.this,UserActivity.class);
+        if (FirebaseAuth.getInstance().getCurrentUser() != null) {
+            Intent intent = new Intent(MainActivity.this, UserActivity.class);
             startActivity(intent);
         }
         mAuth = FirebaseAuth.getInstance();
@@ -77,28 +57,16 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 String email = mEmail.getText().toString();
                 String password = mPassword.getText().toString();
-
-                mAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(MainActivity.this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            String name = mName.getText().toString();
-                            mFirebaseUser = mAuth.getCurrentUser();
-                            if (!"".equals(name)) {
-                                UserProfileChangeRequest profileChange = new UserProfileChangeRequest.Builder()
-                                        .setDisplayName(name)
-                                        .build();
-                                mFirebaseUser.updateProfile(profileChange).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<Void> task) {
-                                        Toast.makeText(MainActivity.this, "Hi, My Name Is " + mFirebaseUser.getDisplayName(), Toast.LENGTH_LONG).show();
-                                        addUser();
-                                    }
-                                });
-                            } else {
-                                if (mFirebaseUser.getDisplayName() == null) {
+                if (!"".equals(email) && !"".equals(password)) {
+                    mAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(MainActivity.this, new OnCompleteListener<AuthResult>() {
+                        @Override
+                        public void onComplete(@NonNull Task<AuthResult> task) {
+                            if (task.isSuccessful()) {
+                                String name = mName.getText().toString();
+                                mFirebaseUser = mAuth.getCurrentUser();
+                                if (!"".equals(name)) {
                                     UserProfileChangeRequest profileChange = new UserProfileChangeRequest.Builder()
-                                            .setDisplayName("Who am I?")
+                                            .setDisplayName(name)
                                             .build();
                                     mFirebaseUser.updateProfile(profileChange).addOnCompleteListener(new OnCompleteListener<Void>() {
                                         @Override
@@ -108,21 +76,36 @@ public class MainActivity extends AppCompatActivity {
                                         }
                                     });
                                 } else {
-                                    Toast.makeText(MainActivity.this, "Hi, My Name Is " + mFirebaseUser.getDisplayName(), Toast.LENGTH_LONG).show();
+                                    if (mFirebaseUser.getDisplayName() == null) {
+                                        UserProfileChangeRequest profileChange = new UserProfileChangeRequest.Builder()
+                                                .setDisplayName("Who am I?")
+                                                .build();
+                                        mFirebaseUser.updateProfile(profileChange).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<Void> task) {
+                                                Toast.makeText(MainActivity.this, "Hi, My Name Is " + mFirebaseUser.getDisplayName(), Toast.LENGTH_LONG).show();
+                                                addUser();
+                                            }
+                                        });
+                                    } else {
+                                        Toast.makeText(MainActivity.this, "Hi, My Name Is " + mFirebaseUser.getDisplayName(), Toast.LENGTH_LONG).show();
+                                    }
                                 }
+
+
+                                Log.d("Login ", "signInWithEmail:success");
+                                Intent intent = new Intent(MainActivity.this, UserActivity.class);
+                                startActivity(intent);
+                            } else {
+                                Log.w("Login ", "signInWithEmail:failure", task.getException());
+                                Toast.makeText(MainActivity.this, "Fail to sign in. Please check your email and password again!",
+                                        Toast.LENGTH_LONG).show();
                             }
-
-
-                            Log.d("Login ", "signInWithEmail:success");
-                            Intent intent = new Intent(MainActivity.this, UserActivity.class);
-                            startActivity(intent);
-                        } else {
-                            Log.w("Login ", "signInWithEmail:failure", task.getException());
-                            Toast.makeText(MainActivity.this, "Authentication failed.",
-                                    Toast.LENGTH_SHORT).show();
                         }
-                    }
-                });
+                    });
+                }else{
+                    Toast.makeText(MainActivity.this, "Email or Password is empty!", Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
@@ -132,32 +115,39 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 String email = mEmail.getText().toString();
                 String password = mPassword.getText().toString();
-                mAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(MainActivity.this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
+                if(!"".equals(mName.getText().toString())){
+                    if (!"".equals(email) && !"".equals(password)) {
+                        mAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(MainActivity.this, new OnCompleteListener<AuthResult>() {
+                            @Override
+                            public void onComplete(@NonNull Task<AuthResult> task) {
+                                if (task.isSuccessful()) {
 
-                            addUser();
+                                    addUser();
 
-                            // Sign in success, update UI with the signed-in user's information
-                            Log.d("Sing Up ", "createUserWithEmail:success");
+                                    // Sign in success, update UI with the signed-in user's information
+                                    Log.d("Sing Up ", "createUserWithEmail:success");
 
-                            Intent intent = new Intent(MainActivity.this, UserActivity.class);
-                            startActivity(intent);
-                        } else {
-                            // If sign in fails, display a message to the user.
-                            Log.w("Sign Up ", "createUserWithEmail:failure", task.getException());
-                            Toast.makeText(MainActivity.this, "Authentication failed.",
-                                    Toast.LENGTH_SHORT).show();
-                        }
+                                    Intent intent = new Intent(MainActivity.this, UserActivity.class);
+                                    startActivity(intent);
+                                } else {
+                                    // If sign in fails, display a message to the user.
+                                    Log.w("Sign Up ", "createUserWithEmail:failure", task.getException());
+                                    Toast.makeText(MainActivity.this, "Authentication failed.",
+                                            Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        });
+                    }else{
+                        Toast.makeText(MainActivity.this, "Email or Password is empty!", Toast.LENGTH_SHORT).show();
                     }
-                });
+                }else{
+                    Toast.makeText(MainActivity.this, "Please enter your name!", Toast.LENGTH_SHORT).show();
+                }
+
             }
         });
 
-        mTextMessage = (TextView) findViewById(R.id.message);
-        BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
-        navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+
     }
 
 

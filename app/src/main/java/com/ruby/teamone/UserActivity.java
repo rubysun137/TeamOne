@@ -10,6 +10,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -338,6 +339,7 @@ public class UserActivity extends AppCompatActivity {
                             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                                 if (dataSnapshot.getChildrenCount() != 0) {
                                     Log.d(" friend!!!   ", "addFriend: 已經存在~");
+                                    Toast.makeText(UserActivity.this, "好友已經存在", Toast.LENGTH_SHORT).show();
                                 } else {
                                     addToMyFriendList(mFriendMail, "是否接受邀請", mUserEmail);
                                 }
@@ -351,6 +353,7 @@ public class UserActivity extends AppCompatActivity {
                         });
                     } else {
                         Log.d(" friend!!!   ", "addFriend: 查無此人");
+                        Toast.makeText(UserActivity.this, "查無此人", Toast.LENGTH_SHORT).show();
                     }
                 }
                 @Override
@@ -393,15 +396,16 @@ public class UserActivity extends AppCompatActivity {
         String title = mArticleTitle.getText().toString();
         String content = mArticleContent.getText().toString();
 //        long time = System.currentTimeMillis();
-        Date date = new Date();
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MMM dd hh:mm", Locale.ENGLISH);
-        String formatDate = simpleDateFormat.format(date);
+        if(!"".equals(title) && !"".equals(content)){
+            Date date = new Date();
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MMM dd hh:mm", Locale.ENGLISH);
+            String formatDate = simpleDateFormat.format(date);
 
-        String articleId = mReference.child("article_database").push().getKey();
-        Article article = new Article(content, articleId, mTag, title, formatDate, mUserEmail);
-        mReference.child("article_database").child(articleId).setValue(article);
-
+            String articleId = mReference.child("article_database").push().getKey();
+            Article article = new Article(content, articleId, mTag, title, formatDate, mUserEmail);
+            mReference.child("article_database").child(articleId).setValue(article);
+        }else{
+            Toast.makeText(this, "There is something missing. Please check again!", Toast.LENGTH_LONG).show();
+        }
     }
-
-
 }
