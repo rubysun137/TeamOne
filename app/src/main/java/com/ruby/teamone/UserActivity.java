@@ -180,7 +180,6 @@ public class UserActivity extends AppCompatActivity {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 mReference.child("user_database").child(notSureFriend).child("friends").child(mEmailKey).child("accept").setValue("好友");
-                setFriendSpinnerAdapter();
             }
         });
     }
@@ -194,7 +193,6 @@ public class UserActivity extends AppCompatActivity {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 mReference.child("user_database").child(notSureFriend).child("friends").child(mEmailKey).removeValue();
-                setFriendSpinnerAdapter();
             }
         });
 
@@ -240,12 +238,13 @@ public class UserActivity extends AppCompatActivity {
     private void setFriendSpinnerAdapter() {
         mEmailKey = mUserEmail.replace('@', '_').replace('.', '_');
         Query query = mReference.child("user_database").child(mEmailKey).child("friends").orderByChild("accept").equalTo("是否接受邀請");
-        query.addListenerForSingleValueEvent(new ValueEventListener() {
+        query.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 mNotSureFriendList = new ArrayList<>();
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                     mNotSureFriendList.add(snapshot.getValue(Friend.class).getFriend_email());
+                    Log.d("FRIEND　EMAIL   ", "onDataChange: "+snapshot.getValue(Friend.class).getFriend_email());
                 }
                 mFriendPermissionAdapter = new ArrayAdapter<>(getBaseContext(), android.R.layout.simple_spinner_dropdown_item, mNotSureFriendList);
                 mFriendPermissionSpinner.setAdapter(mFriendPermissionAdapter);
@@ -273,7 +272,7 @@ public class UserActivity extends AppCompatActivity {
     private void setSpinnerAdapter() {
         mEmailKey = mUserEmail.replace('@', '_').replace('.', '_');
         Query query = mReference.child("user_database").child(mEmailKey).child("friends").orderByChild("accept").equalTo("好友");
-        query.addListenerForSingleValueEvent(new ValueEventListener() {
+        query.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 mFriendList = new ArrayList<>();
@@ -341,14 +340,13 @@ public class UserActivity extends AppCompatActivity {
                                     Log.d(" friend!!!   ", "addFriend: 已經存在~");
                                     Toast.makeText(UserActivity.this, "好友已經存在", Toast.LENGTH_SHORT).show();
                                 } else {
-                                    addToMyFriendList(mFriendMail, "是否接受邀請", mUserEmail);
+                                    addToMyFriendList();
                                 }
                             }
 
                             @Override
                             public void onCancelled(@NonNull DatabaseError databaseError) {
                                 Log.d("get Friend name ", "FAIL!!!!!!!");
-                                addToMyFriendList(mFriendMail, "是否接受邀請", mUserEmail);
                             }
                         });
                     } else {
@@ -365,17 +363,19 @@ public class UserActivity extends AppCompatActivity {
 
     }
 
-    private void addToMyFriendList(String friendMail, final String accept, final String userEmail) {
+    private void addToMyFriendList() {
 
-        mEmailKey = userEmail.replace('@', '_').replace('.', '_');
-        mFriendEmailKey = friendMail.replace('@', '_').replace('.', '_');
+        mEmailKey = mUserEmail.replace('@', '_').replace('.', '_');
+        mFriendEmailKey = mFriendMail.replace('@', '_').replace('.', '_');
 //
         Log.d("get Friend name ", "onDataChange: " + mFriendEmailKey);
-        Friend friend = new Friend(accept, userEmail);
+        Friend friend = new Friend("是否接受邀請", mUserEmail);
         mReference.child("user_database").child(mFriendEmailKey).child("friends").child(mEmailKey).setValue(friend).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
-                addToFriendList(mUserEmail, "發送邀請中", mFriendMail);
+                Friend friend = new Friend("發送邀請中", mFriendMail);
+                mReference.child("user_database").child(mEmailKey).child("friends").child(mFriendEmailKey).setValue(friend);
+                Toast.makeText(UserActivity.this, "發送邀請中", Toast.LENGTH_SHORT).show();
             }
         });
 
