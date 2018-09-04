@@ -159,14 +159,41 @@ public class UserActivity extends AppCompatActivity {
         mAcceptButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                acceptFriend();
             }
         });
 
         mRejectButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                deleteFriend();
+            }
+        });
 
+    }
+
+    private void acceptFriend() {
+        mEmailKey = mUserEmail.replace('@', '_').replace('.', '_');
+        final String notSureFriend = mNotSureFriendEmail.replace('@', '_').replace('.', '_');
+        mReference.child("user_database").child(mEmailKey).child("friends").child(notSureFriend).child("accept").setValue("好友").addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                mReference.child("user_database").child(notSureFriend).child("friends").child(mEmailKey).child("accept").setValue("好友");
+                setFriendSpinnerAdapter();
+            }
+        });
+    }
+
+
+    private void deleteFriend() {
+
+        mEmailKey = mUserEmail.replace('@', '_').replace('.', '_');
+        final String notSureFriend = mNotSureFriendEmail.replace('@', '_').replace('.', '_');
+        mReference.child("user_database").child(mEmailKey).child("friends").child(notSureFriend).removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                mReference.child("user_database").child(notSureFriend).child("friends").child(mEmailKey).removeValue();
+                setFriendSpinnerAdapter();
             }
         });
 
@@ -224,12 +251,12 @@ public class UserActivity extends AppCompatActivity {
                 mFriendPermissionSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                     @Override
                     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                        mNotSureFriendEmail = mFriendArticleAdapter.getItem(position);
+                        mNotSureFriendEmail = mNotSureFriendList.get(position);
                     }
 
                     @Override
                     public void onNothingSelected(AdapterView<?> parent) {
-                        mNotSureFriendEmail = mFriendArticleAdapter.getItem(0);
+                        mNotSureFriendEmail = mNotSureFriendList.get(0);
                     }
                 });
             }
@@ -257,12 +284,12 @@ public class UserActivity extends AppCompatActivity {
                 mSearchFriendArticleSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                     @Override
                     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                        mRealFriendEmail = mFriendArticleAdapter.getItem(position);
+                        mRealFriendEmail = mFriendList.get(position);
                     }
 
                     @Override
                     public void onNothingSelected(AdapterView<?> parent) {
-                        mRealFriendEmail = mFriendArticleAdapter.getItem(0);
+                        mRealFriendEmail = mFriendList.get(0);
                     }
                 });
             }
@@ -287,143 +314,97 @@ public class UserActivity extends AppCompatActivity {
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-                deleteFriend();
-            }
-        });
-
-    }
-
-    private void deleteFriend() {
-
-        mEmailKey = mUserEmail.replace('@', '_').replace('.', '_');
-        Query queryReference = mReference.child("user_database").child(mEmailKey).child("friends").orderByChild("friend_email").equalTo(mNotSureFriendEmail);
-        queryReference.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                for(DataSnapshot snapshot : dataSnapshot.getChildren()){
-                    Log.d("???", "onDataChange: "+ snapshot.toString());
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                Log.d("get Friend name ", "FAIL!!!!!!!");
 
             }
         });
 
     }
+
 
     private void addFriend() {
-        mFriendMail = "frank826678@gmail.com";//mFriendEmailEditText.getText().toString();
+        mFriendMail = mFriendEmailEditText.getText().toString();
+        if (!mFriendMail.equals(mUserEmail)) {
+            mEmailKey = mFriendMail.replace('@', '_').replace('.', '_');
+            Query query = mReference.child("user_database").orderByKey().equalTo(mEmailKey);
+            query.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    //是否有這個使用者
+                    if (dataSnapshot.getChildrenCount() != 0) {
+                        Log.d("FRIENDS!!!", "onDataChange:  有這個人!!!!");
 
-        mEmailKey = mFriendMail.replace('@', '_').replace('.', '_');
-        Query query = mReference.child("user_database").orderByKey().equalTo(mEmailKey);
-        query.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                //是否有這個使用者
-                if (dataSnapshot.getChildrenCount() != 0) {
-                    Log.d("FRIENDS!!!", "onDataChange:  有這個人!!!!");
+                        mEmailKey = mUserEmail.replace('@', '_').replace('.', '_');
+                        Query queryReference = mReference.child("user_database").child(mEmailKey).child("friends").orderByChild("friend_email").equalTo(mFriendMail);
+                        queryReference.addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                if (dataSnapshot.getChildrenCount() != 0) {
+                                    Log.d(" friend!!!   ", "addFriend: 已經存在~");
+                                } else {
+                                    addToMyFriendList(mFriendMail, "是否接受邀請", mUserEmail);
 
-                    mEmailKey = mUserEmail.replace('@', '_').replace('.', '_');
-                    Query queryReference = mReference.child("user_database").child(mEmailKey).child("friends").orderByChild("friend_email").equalTo(mFriendMail);
-                    queryReference.addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                            if (dataSnapshot.getChildrenCount() != 0) {
-                                Log.d(" friend!!!   ", "addFriend: 已經存在~");
-                            } else {
+                                }
+                            }
+
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError databaseError) {
+                                Log.d("get Friend name ", "FAIL!!!!!!!");
                                 addToMyFriendList(mFriendMail, "是否接受邀請", mUserEmail);
                             }
-                        }
-
-                        @Override
-                        public void onCancelled(@NonNull DatabaseError databaseError) {
-                            Log.d("get Friend name ", "FAIL!!!!!!!");
-                            addToMyFriendList(mFriendMail, "是否接受邀請", mUserEmail);
-                        }
-                    });
-                } else {
-                    Log.d(" friend!!!   ", "addFriend: 查無此人");
+                        });
+                    } else {
+                        Log.d(" friend!!!   ", "addFriend: 查無此人");
+                    }
                 }
-            }
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
 
-            }
-        });
+                }
+            });
+        }
 
     }
 
     private void addToMyFriendList(String friendMail, final String accept, final String userEmail) {
 
         mEmailKey = friendMail.replace('@', '_').replace('.', '_');
-        mFriendNumber = "0";
-        Query queryReference = mReference.child("user_database").orderByChild("email").equalTo(friendMail);
-        queryReference.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                    //User object 要有空的 constructor 才能 get value
-                    User user = snapshot.getValue(User.class);
-                    if (user.getFriends() != null) {
-
-                        mFriendNumber = user.getFriends().size() + "";
-                    }
-                }
-                Log.d("get Friend name ", "onDataChange: " + mFriendNumber);
+        mFriendNumber = userEmail.replace('@', '_').replace('.', '_');
+//        Query queryReference = mReference.child("user_database").orderByChild("email").equalTo(friendMail);
+//        queryReference.addListenerForSingleValueEvent(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+//                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+//                    //User object 要有空的 constructor 才能 get value
+//                    User user = snapshot.getValue(User.class);
+//                    if (user.getFriends() != null) {
+//
+//                        mFriendNumber = user.getFriends().size() + "";
+//                    }
+//                }
+        Log.d("get Friend name ", "onDataChange: " + mFriendNumber);
 //                Friend friendOfMine = new Friend("發送邀請中", mFriendMail);
-                Friend friend = new Friend(accept, userEmail);
+        Friend friend = new Friend(accept, userEmail);
 //                ArrayList<Friend> friends = new ArrayList<>();
 //                friends.add(friend);
-                mReference.child("user_database").child(mEmailKey).child("friends").child(mFriendNumber).setValue(friend).addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        addToFriendList(mUserEmail, "發送邀請中", mFriendMail);
-                    }
-                });
-
-
-            }
-
+        mReference.child("user_database").child(mEmailKey).child("friends").child(mFriendNumber).setValue(friend).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                Log.d("get Friend name ", "FAIL!!!!!!!");
+            public void onComplete(@NonNull Task<Void> task) {
+                addToFriendList(mUserEmail, "發送邀請中", mFriendMail);
             }
         });
+
+
     }
 
     private void addToFriendList(String friendMail, final String accept, final String userEmail) {
 
         mEmailKey = friendMail.replace('@', '_').replace('.', '_');
-        mFriendNumber = "0";
-        Query queryReference = mReference.child("user_database").orderByChild("email").equalTo(friendMail);
-        queryReference.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                    //User object 要有空的 constructor 才能 get value
-                    User user = snapshot.getValue(User.class);
-                    if (user.getFriends() != null) {
+        mFriendNumber = userEmail.replace('@', '_').replace('.', '_');
 
-                        mFriendNumber = user.getFriends().size() + "";
-                    }
-                }
-                Log.d("get Friend name ", "onDataChange: " + mFriendNumber);
-//                Friend friendOfMine = new Friend("發送邀請中", mFriendMail);
-                Friend friend = new Friend(accept, userEmail);
-//                ArrayList<Friend> friends = new ArrayList<>();
-//                friends.add(friend);
-                mReference.child("user_database").child(mEmailKey).child("friends").child(mFriendNumber).setValue(friend);
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                Log.d("get Friend name ", "FAIL!!!!!!!");
-            }
-        });
+        Log.d("get Friend name ", "onDataChange: " + mFriendNumber);
+        Friend friend = new Friend(accept, userEmail);
+        mReference.child("user_database").child(mEmailKey).child("friends").child(mFriendNumber).setValue(friend);
     }
 
     private void addArticle() {
