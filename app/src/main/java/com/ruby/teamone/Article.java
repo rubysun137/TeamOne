@@ -5,16 +5,19 @@ public class Article {
     private String article_id;
     private String article_tag;
     private String article_title;
-    private long create_time;
+    private String create_time;
     private String email;
 
-    public Article(String article_content, String article_id, String article_tag, String article_title, long create_time, String email) {
+    public Article(String article_content, String article_id, String article_tag, String article_title, String create_time, String email) {
         this.article_content = article_content;
         this.article_id = article_id;
         this.article_tag = article_tag;
         this.article_title = article_title;
         this.create_time = create_time;
         this.email = email;
+    }
+
+    public Article() {
     }
 
     public String getArticle_content() {
@@ -33,7 +36,7 @@ public class Article {
         return article_title;
     }
 
-    public long getCreate_time() {
+    public String getCreate_time() {
         return create_time;
     }
 
