@@ -56,7 +56,7 @@ public class UserActivity extends AppCompatActivity {
     private String mNotSureFriendEmail;
     private String mEmailKey;
     private String mFriendMail;
-    private String mFriendNumber;
+    private String mFriendEmailKey;
     private List<String> mFriendList;
     private List<String> mNotSureFriendList;
 
@@ -317,9 +317,7 @@ public class UserActivity extends AppCompatActivity {
 
             }
         });
-
     }
-
 
     private void addFriend() {
         mFriendMail = mFriendEmailEditText.getText().toString();
@@ -342,7 +340,6 @@ public class UserActivity extends AppCompatActivity {
                                     Log.d(" friend!!!   ", "addFriend: 已經存在~");
                                 } else {
                                     addToMyFriendList(mFriendMail, "是否接受邀請", mUserEmail);
-
                                 }
                             }
 
@@ -356,7 +353,6 @@ public class UserActivity extends AppCompatActivity {
                         Log.d(" friend!!!   ", "addFriend: 查無此人");
                     }
                 }
-
                 @Override
                 public void onCancelled(@NonNull DatabaseError databaseError) {
 
@@ -368,26 +364,12 @@ public class UserActivity extends AppCompatActivity {
 
     private void addToMyFriendList(String friendMail, final String accept, final String userEmail) {
 
-        mEmailKey = friendMail.replace('@', '_').replace('.', '_');
-        mFriendNumber = userEmail.replace('@', '_').replace('.', '_');
-//        Query queryReference = mReference.child("user_database").orderByChild("email").equalTo(friendMail);
-//        queryReference.addListenerForSingleValueEvent(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-//                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-//                    //User object 要有空的 constructor 才能 get value
-//                    User user = snapshot.getValue(User.class);
-//                    if (user.getFriends() != null) {
+        mEmailKey = userEmail.replace('@', '_').replace('.', '_');
+        mFriendEmailKey = friendMail.replace('@', '_').replace('.', '_');
 //
-//                        mFriendNumber = user.getFriends().size() + "";
-//                    }
-//                }
-        Log.d("get Friend name ", "onDataChange: " + mFriendNumber);
-//                Friend friendOfMine = new Friend("發送邀請中", mFriendMail);
+        Log.d("get Friend name ", "onDataChange: " + mFriendEmailKey);
         Friend friend = new Friend(accept, userEmail);
-//                ArrayList<Friend> friends = new ArrayList<>();
-//                friends.add(friend);
-        mReference.child("user_database").child(mEmailKey).child("friends").child(mFriendNumber).setValue(friend).addOnCompleteListener(new OnCompleteListener<Void>() {
+        mReference.child("user_database").child(mFriendEmailKey).child("friends").child(mEmailKey).setValue(friend).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 addToFriendList(mUserEmail, "發送邀請中", mFriendMail);
@@ -397,14 +379,14 @@ public class UserActivity extends AppCompatActivity {
 
     }
 
-    private void addToFriendList(String friendMail, final String accept, final String userEmail) {
+    private void addToFriendList(String userMail, final String accept, final String friendEmail) {
 
-        mEmailKey = friendMail.replace('@', '_').replace('.', '_');
-        mFriendNumber = userEmail.replace('@', '_').replace('.', '_');
+        mEmailKey = userMail.replace('@', '_').replace('.', '_');
+        mFriendEmailKey = friendEmail.replace('@', '_').replace('.', '_');
 
-        Log.d("get Friend name ", "onDataChange: " + mFriendNumber);
-        Friend friend = new Friend(accept, userEmail);
-        mReference.child("user_database").child(mEmailKey).child("friends").child(mFriendNumber).setValue(friend);
+        Log.d("get Friend name ", "onDataChange: " + mFriendEmailKey);
+        Friend friend = new Friend(accept, friendEmail);
+        mReference.child("user_database").child(mEmailKey).child("friends").child(mFriendEmailKey).setValue(friend);
     }
 
     private void addArticle() {
