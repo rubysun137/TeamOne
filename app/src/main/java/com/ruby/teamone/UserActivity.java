@@ -338,7 +338,7 @@ public class UserActivity extends AppCompatActivity {
                             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                                 if (dataSnapshot.getChildrenCount() != 0) {
                                     Log.d(" friend!!!   ", "addFriend: 已經存在~");
-                                    Toast.makeText(UserActivity.this, "好友已經存在", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(UserActivity.this, "發送邀請中 或 好友已經存在", Toast.LENGTH_SHORT).show();
                                 } else {
                                     addToMyFriendList();
                                 }
@@ -380,16 +380,6 @@ public class UserActivity extends AppCompatActivity {
         });
 
 
-    }
-
-    private void addToFriendList(String userMail, final String accept, final String friendEmail) {
-
-        mEmailKey = userMail.replace('@', '_').replace('.', '_');
-        mFriendEmailKey = friendEmail.replace('@', '_').replace('.', '_');
-
-        Log.d("get Friend name ", "onDataChange: " + mFriendEmailKey);
-        Friend friend = new Friend(accept, friendEmail);
-        mReference.child("user_database").child(mEmailKey).child("friends").child(mFriendEmailKey).setValue(friend);
     }
 
     private void addArticle() {
