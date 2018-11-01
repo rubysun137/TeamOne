@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_try"
+    app:startDestination="@id/blankFragment">
+
+    <activity
+        android:id="@+id/mainActivity"
+        android:name="com.ruby.teamone.MainActivity"
+        android:label="activity_main"
+        tools:layout="@layout/activity_main" />
+    <activity
+        android:id="@+id/userActivity"
+        android:name="com.ruby.teamone.UserActivity"
+        android:label="activity_user"
+        tools:layout="@layout/activity_user" />
+    <fragment
+        android:id="@+id/blankFragment"
+        android:name="com.ruby.teamone.BlankFragment"
+        android:label="fragment_blank"
+        tools:layout="@layout/fragment_blank" >
+        <action
+            android:id="@+id/action_blankFragment_to_userActivity3"
+            app:destination="@id/userActivity" />
+    </fragment>
+</navigation>

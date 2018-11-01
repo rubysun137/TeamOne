@@ -19,4 +19,5 @@ public class Friend {
     public String getFriend_email() {
         return friend_email;
     }
+
 }

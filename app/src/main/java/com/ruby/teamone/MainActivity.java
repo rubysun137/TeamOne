@@ -37,6 +37,7 @@ public class MainActivity extends AppCompatActivity {
     private String mUserUid;
     private String mUserName;
     private FirebaseUser mFirebaseUser;
+    private View mView;
 
 
     @Override
@@ -47,6 +48,7 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = new Intent(MainActivity.this, UserActivity.class);
             startActivity(intent);
         }
+        mView = new PathEffectView(this);
         mAuth = FirebaseAuth.getInstance();
         mName = findViewById(R.id.nameText);
         mEmail = findViewById(R.id.emailText);
